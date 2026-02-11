@@ -349,7 +349,7 @@ macro_rules! __impl_graft {
             *$val = $crate::serde_json::Value::Object($crate::serde_json::Map::new());
         }
         if let Some(obj) = $val.as_object_mut() {
-            let next = obj.entry(stringify!($key)).or_insert($crate::serde_json::Value::Null);
+            let next = obj.entry(std::stringify!($key)).or_insert($crate::serde_json::Value::Null);
             $crate::__impl_graft!(next, $($rest)*);
         }
     };
@@ -399,13 +399,6 @@ macro_rules! __impl_construct_room {
     ([ $len:expr ] [ $($next:tt)+ ] $($rest:tt)*) => {
         $crate::serde_json::Value::Array(std::vec![
             $crate::__impl_construct_room!([ $($next)+ ] $($rest)*);
-            $len
-        ])
-    };
-
-    ([ $len:expr ] [ $($next:tt)+ ] $($rest:tt)*, $init:expr) => {
-        $crate::serde_json::Value::Array(std::vec![
-            $crate::__impl_construct_room!([ $($next)+ ] $($rest)*, $init);
             $len
         ])
     };

@@ -685,47 +685,31 @@ fn test_mixed_deep_nesting_with_arrays() {
 // -----------------------------------------------------------------------------
 #[test]
 fn test_suture_limitation_scalar_blockage() {
-    // suture は、スカラーを通じてネストされたパスに進めない
-    // これは安全装置で、既存の値を意図しない上書きから保護する
     let mut data = json!({"field": "scalar_value"});
-
-    // この操作は "scalar_value" が文字列なのでブロックされる
     suture!(data, .field .nested = "should_not_work");
-
-    // field は依然として文字列のまま
     assert_eq!(data["field"], "scalar_value");
 }
 
 #[test]
 fn test_suture_requires_path_compatibility() {
-    // suture は既存パスが正しい型である場合のみ進める
     let mut data = json!({"obj": {"key": "value"}});
-
-    // これは OK - obj は既にオブジェクト
     suture!(data, .obj .key = "updated");
     assert_eq!(data["obj"]["key"], "updated");
 
-    // しかし以下は失敗する - arr は配列ではなくスカラー
     let mut data2 = json!({"arr": "not_array"});
     suture!(data2, .arr [0] = "item");
-
-    // arr は変更されないままスカラー
     assert_eq!(data2["arr"], "not_array");
 }
 
 #[test]
 fn test_graft_same_limitation() {
-    // graft も同じ制限を持つ
     let mut data = json!({"field": "scalar"});
     graft!(data, .field .nested = "blocked");
-
-    // field は変更されず
     assert_eq!(data["field"], "scalar");
 }
 
 #[test]
 fn test_direct_scalar_overwrite_is_allowed() {
-    // ただし、パスの終点でスカラーを直接上書きするのは許可される
     let mut data = json!("original");
     suture!(data, = "replaced");
     assert_eq!(data, "replaced");
@@ -733,7 +717,6 @@ fn test_direct_scalar_overwrite_is_allowed() {
 
 #[test]
 fn test_null_is_flexible_for_type_conversion() {
-    // Null は特別で、どんな型へも変換可能
     let mut data = json!({"a": null});
     suture!(data, .a .key = "now_object");
     assert!(data["a"].is_object());
@@ -808,7 +791,6 @@ fn test_array_gap_creation() {
     let mut data = json!(null);
     suture!(data, [5] = "at_index_5");
 
-    // Indices 0-4 should be null
     for i in 0..5 {
         assert!(data[i].is_null());
     }
@@ -862,14 +844,9 @@ fn test_array_index_safety_recommendation() {
 #[test]
 fn test_key_syntax_ident_vs_literal_vs_dynamic() {
     let mut data = json!({});
-
-    // ident スタイル（シンボリック）
     suture!(data, .username = "alice");
-
-    // literal スタイル（文字列リテラル）
     suture!(data, . "email" = "alice@example.com");
 
-    // dynamic スタイル（変数）
     let field = "age";
     suture!(data, .(field) = 30);
 
@@ -935,7 +912,6 @@ fn test_amputate_return_type() {
 fn test_path_with_various_whitespace() {
     let mut data = json!({});
 
-    // Different spacing styles
     suture!(data,.key1="no_space");
     suture!(data, . "key2" = "standard");
     suture!(data,  .  key3  =  "extra_spaces");
@@ -979,6 +955,7 @@ fn test_suture_then_graft_then_acquire() {
     let mut data = json!({});
     suture!(data, .value = 10);
     graft!(data, .value = 20); // Should not overwrite
+                               //
     let retrieved = acquire!(data, .value).unwrap();
     assert_eq!(retrieved, &json!(10));
 }
@@ -987,6 +964,7 @@ fn test_suture_then_graft_then_acquire() {
 fn test_biopsy_then_incise_then_biopsy() {
     let mut data = json!({"x": 1});
     assert_eq!(biopsy!(data, .x), Some(&json!(1)));
+
     incise!(data, .x = 2);
     assert_eq!(biopsy!(data, .x), Some(&json!(2)));
 }
@@ -1016,6 +994,7 @@ fn test_all_json_types_in_single_object() {
 fn test_overwrite_preserves_type_correctness() {
     let mut data = json!({"val": 10});
     assert!(data["val"].is_number());
+
     suture!(data, .val = "now_string");
     assert!(data["val"].is_string());
 }
@@ -1068,7 +1047,7 @@ fn test_biopsy_complex_path_all_key_types() {
 fn test_operation_order_suture_then_graft() {
     let mut data = json!({});
     suture!(data, .field = "first");
-    graft!(data, .field = "second"); // Should not overwrite
+    graft!(data, .field = "second");
 
     assert_eq!(data["field"], "first");
 }
@@ -1077,7 +1056,7 @@ fn test_operation_order_suture_then_graft() {
 fn test_operation_order_graft_then_suture() {
     let mut data = json!({});
     graft!(data, .field = "first");
-    suture!(data, .field = "second"); // Should overwrite
+    suture!(data, .field = "second");
 
     assert_eq!(data["field"], "second");
 }
