@@ -1,0 +1,19 @@
+name: Rust Surgical Audit
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+    - name: Run Standard Tests
+      run: cargo test --verbose
+    - name: Run Law Mode Tests
+      run: cargo test --features law_mode --verbose

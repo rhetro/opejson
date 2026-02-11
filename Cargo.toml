@@ -1,0 +1,20 @@
+[package]
+name = "opejson"
+version = "0.1.1"
+edition = "2021"
+authors = ["Rhetro <rhetro@rhetroxc.com>"]
+description = "Surgical JSON manipulation macros for Rust. (Strict, Genesis, and Law modes)"
+license = "MIT"
+repository = "https://github.com/rhetro/opejson"
+readme = "README.md"
+keywords = ["json", "macro", "dynamic", "serde"]
+categories = ["data-structures", "encoding"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+
+[features]
+default = []
+law_mode = []
