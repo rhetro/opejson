@@ -1,6 +1,6 @@
 [package]
 name = "opejson"
-version = "0.1.1"
+version = "0.1.0"
 edition = "2021"
 authors = ["Rhetro <rhetro@rhetroxc.com>"]
 description = "Surgical JSON manipulation macros for Rust. (Strict, Genesis, and Law modes)"
