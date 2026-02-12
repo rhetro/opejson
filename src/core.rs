@@ -220,9 +220,9 @@ macro_rules! __impl_cultivate {
             *$val = $crate::serde_json::Value::Object($crate::serde_json::Map::new());
         }
 
-        if let Some(obj) = $val.as_object_mut() {
-            let next = obj.entry($key).or_insert($crate::serde_json::Value::Null);
-            $crate::__impl_cultivate!(next, $($rest)*);
+        if let Some(__opejson_obj) = $val.as_object_mut() {
+            let __opejson_next = __opejson_obj.entry($key).or_insert($crate::serde_json::Value::Null);
+            $crate::__impl_cultivate!(__opejson_next, $($rest)*);
         } else {
             #[cfg(debug_assertions)]
             eprintln!("Opejson Warning: Suture blocked. Path segment is not an Object.")
@@ -234,9 +234,9 @@ macro_rules! __impl_cultivate {
             *$val = $crate::serde_json::Value::Object($crate::serde_json::Map::new());
         }
 
-        if let Some(obj) = $val.as_object_mut() {
-            let next = obj.entry($key).or_insert($crate::serde_json::Value::Null);
-            $crate::__impl_cultivate!(next, $($rest)*);
+        if let Some(__opejson_obj) = $val.as_object_mut() {
+            let __opejson_next = __opejson_obj.entry($key).or_insert($crate::serde_json::Value::Null);
+            $crate::__impl_cultivate!(__opejson_next, $($rest)*);
         } else {
             #[cfg(debug_assertions)]
             eprintln!("Opejson Warning: Suture blocked. Path segment is not an Object.");
@@ -248,9 +248,9 @@ macro_rules! __impl_cultivate {
             *$val = $crate::serde_json::Value::Object($crate::serde_json::Map::new());
         }
 
-        if let Some(obj) = $val.as_object_mut() {
-            let next = obj.entry(std::stringify!($key)).or_insert($crate::serde_json::Value::Null);
-            $crate::__impl_cultivate!(next, $($rest)*);
+        if let Some(__opejson_obj) = $val.as_object_mut() {
+            let __opejson_next = __opejson_obj.entry(std::stringify!($key)).or_insert($crate::serde_json::Value::Null);
+            $crate::__impl_cultivate!(__opejson_next, $($rest)*);
         } else {
             #[cfg(debug_assertions)]
             eprintln!("Opejson Warning: Suture blocked. Path segment is not an Object.");
@@ -262,15 +262,15 @@ macro_rules! __impl_cultivate {
             *$val = $crate::serde_json::Value::Array(std::vec::Vec::new());
         }
 
-        if let Some(arr) = $val.as_array_mut() {
-            let idx = $idx as usize;
+        if let Some(__opejson_arr) = $val.as_array_mut() {
+            let __opejson_idx = $idx as usize;
 
-            if idx >= arr.len() {
-                arr.resize(idx + 1, $crate::serde_json::Value::Null);
+            if __opejson_idx >= __opejson_arr.len() {
+                __opejson_arr.resize(__opejson_idx + 1, $crate::serde_json::Value::Null);
             }
 
-            let next = &mut arr[idx];
-            $crate::__impl_cultivate!(next, $($rest)*);
+            let __opejson_next = &mut __opejson_arr[__opejson_idx];
+            $crate::__impl_cultivate!(__opejson_next, $($rest)*);
         } else {
             #[cfg(debug_assertions)]
             eprintln!("Opejson Warning: Suture blocked. Path segment is not an Array.")
@@ -328,9 +328,9 @@ macro_rules! __impl_graft {
         if $val.is_null() {
             *$val = $crate::serde_json::Value::Object($crate::serde_json::Map::new());
         }
-        if let Some(obj) = $val.as_object_mut() {
-            let next = obj.entry($key).or_insert($crate::serde_json::Value::Null);
-            $crate::__impl_graft!(next, $($rest)*);
+        if let Some(__opejson_obj) = $val.as_object_mut() {
+            let __opejson_next = __opejson_obj.entry($key).or_insert($crate::serde_json::Value::Null);
+            $crate::__impl_graft!(__opejson_next, $($rest)*);
         }
     };
 
@@ -338,9 +338,9 @@ macro_rules! __impl_graft {
         if $val.is_null() {
             *$val = $crate::serde_json::Value::Object($crate::serde_json::Map::new());
         }
-        if let Some(obj) = $val.as_object_mut() {
-            let next = obj.entry($key).or_insert($crate::serde_json::Value::Null);
-            $crate::__impl_graft!(next, $($rest)*);
+        if let Some(__opejson_obj) = $val.as_object_mut() {
+            let __opejson_next = __opejson_obj.entry($key).or_insert($crate::serde_json::Value::Null);
+            $crate::__impl_graft!(__opejson_next, $($rest)*);
         }
     };
 
@@ -348,9 +348,9 @@ macro_rules! __impl_graft {
         if $val.is_null() {
             *$val = $crate::serde_json::Value::Object($crate::serde_json::Map::new());
         }
-        if let Some(obj) = $val.as_object_mut() {
-            let next = obj.entry(std::stringify!($key)).or_insert($crate::serde_json::Value::Null);
-            $crate::__impl_graft!(next, $($rest)*);
+        if let Some(__opejson_obj) = $val.as_object_mut() {
+            let __opejson_next = __opejson_obj.entry(std::stringify!($key)).or_insert($crate::serde_json::Value::Null);
+            $crate::__impl_graft!(__opejson_next, $($rest)*);
         }
     };
 
@@ -358,13 +358,13 @@ macro_rules! __impl_graft {
         if $val.is_null() {
             *$val = $crate::serde_json::Value::Array(std::vec::Vec::new());
         }
-        if let Some(arr) = $val.as_array_mut() {
-            let idx = $idx as usize;
-            if idx >= arr.len() {
-                arr.resize(idx + 1, $crate::serde_json::Value::Null);
+        if let Some(__opejson_arr) = $val.as_array_mut() {
+            let __opejson_idx = $idx as usize;
+            if __opejson_idx >= __opejson_arr.len() {
+                __opejson_arr.resize(__opejson_idx + 1, $crate::serde_json::Value::Null);
             }
-            let next = &mut arr[idx];
-            $crate::__impl_graft!(next, $($rest)*);
+            let __opejson_next = &mut __opejson_arr[__opejson_idx];
+            $crate::__impl_graft!(__opejson_next, $($rest)*);
         }
     };
 }
@@ -392,8 +392,8 @@ macro_rules! __impl_construct_room {
     };
 
     ([ $len:expr ], $init:expr) => {{
-        let __ope_init = $crate::serde_json::json!($init);
-        $crate::serde_json::Value::Array(std::vec![__ope_init; $len])
+        let __opejson_init = $crate::serde_json::json!($init);
+        $crate::serde_json::Value::Array(std::vec![__opejson_init; $len])
     }};
 
     ([ $len:expr ] [ $($next:tt)+ ] $($rest:tt)*) => {
