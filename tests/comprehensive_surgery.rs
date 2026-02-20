@@ -179,7 +179,50 @@ fn test_suture_value_types_array() {
 }
 
 // -----------------------------------------------------------------------------
-// 2. ACQUIRE - SAFE READ WITH RESULT
+// 2. FORCE SUTURE - AGGRESSIVE PATH CREATION
+// -----------------------------------------------------------------------------
+#[test]
+fn test_force_suture_overwrites_scalar_with_object() {
+    let mut data = json!({"field": "scalar_value"});
+    // suture! would be blocked here, but force_suture! crushes the string.
+    force_suture!(data, .field .nested = "forced_in");
+    assert_eq!(data["field"]["nested"], "forced_in");
+}
+
+#[test]
+fn test_force_suture_overwrites_scalar_with_array() {
+    let mut data = json!({"arr": "not_an_array"});
+    // Crushes the string "not_an_array" and builds an array.
+    force_suture!(data, .arr [0] = "forced_item");
+    assert_eq!(data["arr"][0], "forced_item");
+}
+
+#[test]
+fn test_force_suture_overwrites_array_with_object() {
+    let mut data = json!({"target": [1, 2, 3]});
+    // Expected Object but found Array. force_suture! destroys the Array.
+    force_suture!(data, .target .key = "crushed_array");
+    assert_eq!(data["target"]["key"], "crushed_array");
+}
+
+#[test]
+fn test_force_suture_overwrites_object_with_array() {
+    let mut data = json!({"target": {"key": "value"}});
+    // Expected Array but found Object. force_suture! destroys the Object.
+    force_suture!(data, .target [0] = "crushed_object");
+    assert_eq!(data["target"][0], "crushed_object");
+}
+
+#[test]
+fn test_force_suture_acts_like_suture_on_null() {
+    let mut data = json!(null);
+    // On empty/null space, it creates structures normally just like suture!
+    force_suture!(data, .a .b [0] = "works");
+    assert_eq!(data["a"]["b"][0], "works");
+}
+
+// -----------------------------------------------------------------------------
+// 3. ACQUIRE - SAFE READ WITH RESULT
 // -----------------------------------------------------------------------------
 #[test]
 fn test_acquire_existing_value() {
@@ -246,37 +289,37 @@ fn test_acquire_dynamic_key() {
 }
 
 // -----------------------------------------------------------------------------
-// 3. GRAFT - SAFETY & PRESERVATION
+// 4. IMPLANT - SAFETY & PRESERVATION
 // -----------------------------------------------------------------------------
 
 #[test]
-fn test_graft_into_null_slot() {
+fn test_implant_into_null_slot() {
     let mut data = json!({"empty": null});
-    graft!(data, .empty = "filled");
+    implant!(data, .empty = "filled");
     assert_eq!(data["empty"], "filled");
 }
 
 #[test]
-fn test_graft_preserves_existing_value() {
+fn test_implant_preserves_existing_value() {
     let mut data = json!({"keep": "original"});
-    graft!(data, .keep = "new");
+    implant!(data, .keep = "new");
     assert_eq!(data["keep"], "original");
 }
 
 #[test]
-fn test_graft_creates_missing_path() {
+fn test_implant_creates_missing_path() {
     let mut data = json!({});
-    graft!(data, .new = "created");
+    implant!(data, .new = "created");
     assert_eq!(data["new"], "created");
 }
 
 #[test]
-fn test_graft_mixed_null_and_occupied() {
+fn test_implant_mixed_null_and_occupied() {
     let mut data = json!({"a": 1, "b": null, "c": "text"});
-    graft!(data, .a = 999);
-    graft!(data, .b = 999);
-    graft!(data, .c = "modified");
-    graft!(data, .d = "new");
+    implant!(data, .a = 999);
+    implant!(data, .b = 999);
+    implant!(data, .c = "modified");
+    implant!(data, .d = "new");
 
     assert_eq!(data["a"], 1); // Existing, preserved
     assert_eq!(data["b"], 999); // Null, filled
@@ -285,18 +328,18 @@ fn test_graft_mixed_null_and_occupied() {
 }
 
 #[test]
-fn test_graft_nested_path_creation() {
+fn test_implant_nested_path_creation() {
     let mut data = json!({});
-    graft!(data, .level1 .level2 .level3 = "nested");
+    implant!(data, .level1 .level2 .level3 = "nested");
     assert_eq!(data["level1"]["level2"]["level3"], "nested");
 }
 
 #[test]
-fn test_graft_into_array_index() {
+fn test_implant_into_array_index() {
     let mut data = json!([null, "existing", null]);
-    graft!(data, [0] = "filled");
-    graft!(data, [1] = "changed");
-    graft!(data, [2] = "filled");
+    implant!(data, [0] = "filled");
+    implant!(data, [1] = "changed");
+    implant!(data, [2] = "filled");
 
     assert_eq!(data[0], "filled");
     assert_eq!(data[1], "existing");
@@ -304,34 +347,100 @@ fn test_graft_into_array_index() {
 }
 
 #[test]
-fn test_graft_ident_key() {
+fn test_implant_ident_key() {
     let mut data = json!({"a": null});
-    graft!(data, .a = "filled");
+    implant!(data, .a = "filled");
     assert_eq!(data["a"], "filled");
 }
 
 #[test]
-fn test_graft_literal_key() {
+fn test_implant_literal_key() {
     let mut data = json!({"a": null});
-    graft!(data, . "a" = "filled");
+    implant!(data, . "a" = "filled");
     assert_eq!(data["a"], "filled");
 }
 
 #[test]
-fn test_graft_dynamic_key() {
+fn test_implant_dynamic_key() {
     let mut data = json!({"a": null});
     let key = "a";
-    graft!(data, .(key) = "filled");
+    implant!(data, .(key) = "filled");
     assert_eq!(data["a"], "filled");
 }
 
 // -----------------------------------------------------------------------------
-// 4. SCAFFOLD - ALLOCATION & PRE-STRUCTURE
+// 5. GRAFT - ANATOMICAL TRANSPLANTATION (SHAMBLES)
 // -----------------------------------------------------------------------------
 #[test]
-fn test_scaffold_1d_array() {
+fn test_graft_shambles_object_fusion() {
+    let mut host = json!({
+        "patient": { "name": "Alice", "blood_type": "A" }
+    });
+
+    graft!(host, .patient = json!({ "age": 25, "status": "cyborg" }));
+
+    assert_eq!(host["patient"]["name"], "Alice");
+    assert_eq!(host["patient"]["blood_type"], "A");
+    assert_eq!(host["patient"]["age"], 25);
+    assert_eq!(host["patient"]["status"], "cyborg");
+}
+
+#[test]
+fn test_graft_shambles_array_extension() {
+    let mut host = json!({
+        "limbs": ["left_arm", "right_arm"]
+    });
+
+    graft!(host, .limbs = json!(["cyborg_arm", "hidden_blade"]));
+
+    assert_eq!(host["limbs"].as_array().unwrap().len(), 4);
+    assert_eq!(host["limbs"][0], "left_arm");
+    assert_eq!(host["limbs"][2], "cyborg_arm");
+    assert_eq!(host["limbs"][3], "hidden_blade");
+}
+
+#[test]
+fn test_graft_shambles_forced_transplant_scalar_to_object() {
+    let mut host = json!({
+        "head": "normal_human_head"
+    });
+
+    graft!(host, .head = json!({ "camera": 1, "cpu": "high" }));
+
+    assert_eq!(host["head"]["camera"], 1);
+    assert_eq!(host["head"]["cpu"], "high");
+    assert_eq!(host["head"].as_str(), None);
+}
+
+#[test]
+fn test_graft_shambles_forced_transplant_object_to_array() {
+    let mut host = json!({
+        "weapon": { "type": "sword", "damage": 50 }
+    });
+
+    graft!(host, .weapon = json!(["gun", "laser"]));
+
+    assert_eq!(host["weapon"][0], "gun");
+    assert_eq!(host["weapon"][1], "laser");
+    assert_eq!(host["weapon"].as_object(), None);
+}
+
+#[test]
+fn test_graft_shambles_to_null_void() {
+    let mut host = json!(null);
+
+    graft!(host, .new_body .core = "plasma");
+
+    assert_eq!(host["new_body"]["core"], "plasma");
+}
+
+// -----------------------------------------------------------------------------
+// 6. MESH - ALLOCATION & PRE-STRUCTURE
+// -----------------------------------------------------------------------------
+#[test]
+fn test_mesh_1d_array() {
     let mut data = json!(null);
-    scaffold!(data, [5], Value::Null);
+    mesh!(data, [5], Value::Null);
     assert!(data.is_array());
     assert_eq!(data.as_array().unwrap().len(), 5);
     for i in 0..5 {
@@ -340,9 +449,9 @@ fn test_scaffold_1d_array() {
 }
 
 #[test]
-fn test_scaffold_2d_array() {
+fn test_mesh_2d_array() {
     let mut data = json!(null);
-    scaffold!(data, [3][4], Value::Null);
+    mesh!(data, [3][4], Value::Null);
     assert_eq!(data.as_array().unwrap().len(), 3);
     for i in 0..3 {
         assert_eq!(data[i].as_array().unwrap().len(), 4);
@@ -350,25 +459,25 @@ fn test_scaffold_2d_array() {
 }
 
 #[test]
-fn test_scaffold_3d_array() {
+fn test_mesh_3d_array() {
     let mut data = json!(null);
-    scaffold!(data, [2][3][2], 0);
+    mesh!(data, [2][3][2], 0);
     assert_eq!(data[1][2][1], 0);
 }
 
 #[test]
-fn test_scaffold_with_custom_fill_value() {
+fn test_mesh_with_custom_fill_value() {
     let mut data = json!(null);
-    scaffold!(data, [3], "empty_slot");
+    mesh!(data, [3], "empty_slot");
     assert_eq!(data[0], "empty_slot");
     assert_eq!(data[1], "empty_slot");
     assert_eq!(data[2], "empty_slot");
 }
 
 #[test]
-fn test_scaffold_with_object_fill() {
+fn test_mesh_with_object_fill() {
     let mut data = json!(null);
-    scaffold!(data, [2], json!({"template": true}));
+    mesh!(data, [2], json!({"template": true}));
     assert_eq!(data[0]["template"], true);
     assert_eq!(data[1]["template"], true);
 }
@@ -378,7 +487,7 @@ fn test_scaffold_with_object_fill() {
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// 5. BIOPSY - READ-ONLY SAFETY
+// 7. BIOPSY - READ-ONLY SAFETY
 // -----------------------------------------------------------------------------
 #[test]
 fn test_biopsy_existing_key() {
@@ -464,7 +573,7 @@ fn test_biopsy_nested_mixed_keys() {
 }
 
 // -----------------------------------------------------------------------------
-// 6️⃣. INCISE - MODIFICATION WITH VALIDATION
+// 8. INCISE - MODIFICATION WITH VALIDATION
 // -----------------------------------------------------------------------------
 #[test]
 fn test_incise_existing_key() {
@@ -540,36 +649,36 @@ fn test_incise_dynamic_key() {
 }
 
 // -----------------------------------------------------------------------------
-// 7. AMPUTATE - DELETION & EXTRACTION
+// 9. Excise - DELETION & EXTRACTION
 // -----------------------------------------------------------------------------
 #[test]
-fn test_amputate_simple_key() {
+fn test_excise_simple_key() {
     let mut data = json!({"to_delete": "gone", "keep": "stay"});
-    amputate!(data, .to_delete);
+    excise!(data, .to_delete);
     assert!(!data.as_object().unwrap().contains_key("to_delete"));
     assert_eq!(data["keep"], "stay");
 }
 
 #[test]
-fn test_amputate_missing_key() {
+fn test_excise_missing_key() {
     let mut data = json!({"key": "value"});
     // Should not panic or crash
-    amputate!(data, .missing);
+    excise!(data, .missing);
     assert_eq!(data["key"], "value");
 }
 
 #[test]
-fn test_amputate_nested() {
+fn test_excise_nested() {
     let mut data = json!({"a": {"b": "target", "c": "keep"}});
-    amputate!(data, .a .b);
+    excise!(data, .a .b);
     assert!(!data["a"].as_object().unwrap().contains_key("b"));
     assert_eq!(data["a"]["c"], "keep");
 }
 
 #[test]
-fn test_amputate_array_element() {
+fn test_excise_array_element() {
     let mut data = json!(["keep", "delete", "keep"]);
-    amputate!(data, [1]);
+    excise!(data, [1]);
     assert_eq!(data.as_array().unwrap().len(), 2);
 }
 
@@ -578,7 +687,7 @@ fn test_amputate_array_element() {
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// 8. TYPE TRANSITIONS
+// 10. TYPE TRANSITIONS
 // -----------------------------------------------------------------------------
 #[test]
 fn test_null_to_object_conversion() {
@@ -617,7 +726,7 @@ fn test_cannot_traverse_scalar_with_suture() {
 }
 
 // -----------------------------------------------------------------------------
-// 9️⃣. SPECIAL CHARACTERS IN KEYS
+// 11. SPECIAL CHARACTERS IN KEYS
 // -----------------------------------------------------------------------------
 #[test]
 fn test_key_with_spaces() {
@@ -653,7 +762,7 @@ fn test_dynamic_key_with_runtime_variable() {
 }
 
 // -----------------------------------------------------------------------------
-// 10. LARGE INDICES & DEEP NESTING
+// 12. LARGE INDICES & DEEP NESTING
 // -----------------------------------------------------------------------------
 #[test]
 fn test_large_array_index() {
@@ -681,7 +790,7 @@ fn test_mixed_deep_nesting_with_arrays() {
 }
 
 // -----------------------------------------------------------------------------
-// 11. SUTURE/GRAFT STRUCTURAL LIMITATION
+// 13. SUTURE/GRAFT STRUCTURAL LIMITATION
 // -----------------------------------------------------------------------------
 #[test]
 fn test_suture_limitation_scalar_blockage() {
@@ -727,7 +836,7 @@ fn test_null_is_flexible_for_type_conversion() {
 }
 
 // -----------------------------------------------------------------------------
-// 1️⃣2. BOUNDARY CONDITIONS
+// 14. BOUNDARY CONDITIONS
 // -----------------------------------------------------------------------------
 #[test]
 fn test_empty_object_operations() {
@@ -764,7 +873,7 @@ fn test_unicode_and_special_strings() {
 }
 
 // -----------------------------------------------------------------------------
-// 1️⃣3. ARRAY INDEX EDGE CASES
+// 15. ARRAY INDEX EDGE CASES
 // -----------------------------------------------------------------------------
 #[test]
 fn test_array_zero_index() {
@@ -798,7 +907,7 @@ fn test_array_gap_creation() {
 }
 
 // -----------------------------------------------------------------------------
-// 14. ARRAY INDEX EDGE CASES: SAFE RANGES
+// 16. ARRAY INDEX EDGE CASES: SAFE RANGES
 // -----------------------------------------------------------------------------
 #[test]
 fn test_array_max_safe_index() {
@@ -838,7 +947,7 @@ fn test_array_index_safety_recommendation() {
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// 1️⃣5. KEY SYNTAX VARIATIONS - IDENT VS LITERAL VS DYNAMIC
+// 1️⃣7. KEY SYNTAX VARIATIONS - IDENT VS LITERAL VS DYNAMIC
 // -----------------------------------------------------------------------------
 
 #[test]
@@ -865,7 +974,7 @@ fn test_all_three_key_syntaxes_in_nested_path() {
 }
 
 // -----------------------------------------------------------------------------
-// 1️⃣6. MACRO RETURN TYPES - STRICT VS GENESIS MODE
+// 1️⃣8. MACRO RETURN TYPES - STRICT VS GENESIS MODE
 // -----------------------------------------------------------------------------
 
 #[test]
@@ -899,14 +1008,14 @@ fn test_incise_failure_returns_none() {
 }
 
 #[test]
-fn test_amputate_return_type() {
+fn test_excise_return_type() {
     let mut data = json!({"delete_me": "gone"});
-    amputate!(data, .delete_me);
+    excise!(data, .delete_me);
     assert!(!data.as_object().unwrap().contains_key("delete_me"));
 }
 
 // -----------------------------------------------------------------------------
-// 1️⃣7. WHITESPACE & FORMATTING VARIATIONS
+// 1️⃣9. WHITESPACE & FORMATTING VARIATIONS
 // -----------------------------------------------------------------------------
 #[test]
 fn test_path_with_various_whitespace() {
@@ -934,7 +1043,7 @@ fn test_assignment_various_spacing() {
 }
 
 // -----------------------------------------------------------------------------
-// 1️⃣8. CHAINING & SEQUENTIAL OPERATIONS
+// 20. CHAINING & SEQUENTIAL OPERATIONS
 // -----------------------------------------------------------------------------
 #[test]
 fn test_sequential_suture_operations() {
@@ -953,11 +1062,14 @@ fn test_sequential_suture_operations() {
 #[test]
 fn test_suture_then_graft_then_acquire() {
     let mut data = json!({});
-    suture!(data, .value = 10);
-    graft!(data, .value = 20); // Should not overwrite
-                               //
-    let retrieved = acquire!(data, .value).unwrap();
-    assert_eq!(retrieved, &json!(10));
+    suture!(data, .config = json!({"host": "localhost"}));
+    graft!(data, .config = json!({"port": 8080}));
+
+    let host = acquire!(data, .config.host).unwrap();
+    let port = acquire!(data, .config.port).unwrap();
+
+    assert_eq!(host, &json!("localhost"));
+    assert_eq!(port, &json!(8080));
 }
 
 #[test]
@@ -970,7 +1082,7 @@ fn test_biopsy_then_incise_then_biopsy() {
 }
 
 // -----------------------------------------------------------------------------
-// 19. PATTERN MATCHING - DIFFERENT VALUE TYPES
+// 21. PATTERN MATCHING - DIFFERENT VALUE TYPES
 // -----------------------------------------------------------------------------
 #[test]
 fn test_all_json_types_in_single_object() {
@@ -1000,7 +1112,7 @@ fn test_overwrite_preserves_type_correctness() {
 }
 
 // -----------------------------------------------------------------------------
-// 20. MIXED LITERAL AND IDENTIFIER STYLES
+// 22. MIXED LITERAL AND IDENTIFIER STYLES
 // -----------------------------------------------------------------------------
 #[test]
 fn test_mixed_ident_and_literal_keys_in_path() {
@@ -1020,7 +1132,7 @@ fn test_array_object_ident_object_literal() {
 }
 
 // -----------------------------------------------------------------------------
-// 2️⃣1. COMBINED PATH PATTERNS
+// 23. COMBINED PATH PATTERNS
 // -----------------------------------------------------------------------------
 #[test]
 fn test_complex_path_all_key_types() {
@@ -1041,15 +1153,16 @@ fn test_biopsy_complex_path_all_key_types() {
 }
 
 // -----------------------------------------------------------------------------
-// 22. CONSECUTIVE OPERATIONS - ORDER MATTERS
+// 24. CONSECUTIVE OPERATIONS - ORDER MATTERS
 // -----------------------------------------------------------------------------
 #[test]
 fn test_operation_order_suture_then_graft() {
     let mut data = json!({});
     suture!(data, .field = "first");
+    // graft はすげ替える
     graft!(data, .field = "second");
 
-    assert_eq!(data["field"], "first");
+    assert_eq!(data["field"], "second");
 }
 
 #[test]
@@ -1072,7 +1185,7 @@ fn test_operation_order_incise_read_update() {
 }
 
 // -----------------------------------------------------------------------------
-// 23. NUMBER TYPES IN JSON VALUES
+// 25. NUMBER TYPES IN JSON VALUES
 // -----------------------------------------------------------------------------
 #[test]
 fn test_suture_integer_values() {

@@ -1,17 +1,16 @@
 [package]
 name = "opejson"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Rhetro <rhetro@rhetroxc.com>"]
 description = "Surgical JSON manipulation macros for Rust. (Strict, Genesis, and Law modes)"
 license = "MIT"
 repository = "https://github.com/rhetro/opejson"
 readme = "README.md"
-keywords = ["json", "macro", "dynamic", "serde"]
+keywords = ["json", "macro", "dynamic", "serde_json", "auto-vivification"]
 categories = ["data-structures", "encoding"]
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
 

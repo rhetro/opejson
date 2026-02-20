@@ -1,14 +1,16 @@
 // src/lib.rs
 
-// | Roles                       | Names      | Law Mode    |
-// |-----------------------------|------------|-------------|
-// | Strict Read (Option)        | biopsy     | scan        |
-// | Strict Write (Mut)          | incise     | radio_knife |
-// | Strict Delete               | amputate   | amputate    |
-// | Genesis Write (Auto-Create) | suture     | takt        |
-// | Genesis Read (Result)       | acquire    | mes         |
-// | Genesis Graft (Inplant)     | graft      | shambles    |
-// | Deploy (Room Expansion)     | scaffold   | room        |
+// | Roles                        | Names        | Law Mode       |
+// |------------------------------|--------------|----------------|
+// | Strict Read (Option)         | biopsy       | scan           |
+// | Strict Write (Mut)           | incise       | radio_knife    |
+// | Strict Delete                | excise       | amputate       |
+// | Genesis Write (Auto-Create)  | suture       | takt           |
+// | Genesis Force Write          | force suture | gamma_knife    |
+// | Genesis Read (Result)        | acquire      | mes            |
+// | Genesis Merge (Merge/Concat) | graft        | shambles       |
+// | Genesis Fill (Void Filler)   | implant      | injection_shot |
+// | Deploy (Room Expansion)      | mesh         | room           |
 
 pub use serde_json;
 
@@ -40,7 +42,7 @@ impl std::error::Error for Error {}
 /// Mode A: Strict
 /// The Surgeon: Operates precisely on existing anatomy.
 pub mod strict {
-    pub use crate::_excise as amputate;
+    pub use crate::_excise as excise;
     pub use crate::_inject as incise;
     pub use crate::_probe as biopsy;
 }
@@ -49,9 +51,11 @@ pub mod strict {
 /// The Creator: Cultivates and grows new paths.
 pub mod genesis {
     pub use crate::_cultivate as suture;
-    pub use crate::_deploy as scaffold;
+    pub use crate::_deploy as mesh;
     pub use crate::_extract as acquire;
+    pub use crate::_force_cultivate as force_suture;
     pub use crate::_graft as graft;
+    pub use crate::_implant as implant;
 }
 
 /// Mode One Piece: Law Mode
@@ -59,18 +63,22 @@ pub mod genesis {
 pub mod law {
     //! The "Ope Ope no Mi" Interface.
 
-    // ROOM: SCAN (biopsy)
+    // SCAN (biopsy)
     pub use crate::strict::biopsy as scan;
-    // ROOM: RADIO KNIFE (incise)
+    // RADIO KNIFE (incise)
     pub use crate::strict::incise as radio_knife;
-    // ROOM: AMPUTATE (amputate)
-    pub use crate::strict::amputate;
-    // ROOM: MES (acquire)
+    // AMPUTATE (excise)
+    pub use crate::strict::excise as amputate;
+    // MES (acquire)
     pub use crate::genesis::acquire as mes;
-    // ROOM: TAKT (suture)
+    // TAKT (suture)
     pub use crate::genesis::suture as takt;
-    // ROOM: SHAMBLES (graft)
+    // GAMMA KNIFE (force suture)
+    pub use crate::genesis::force_suture as gamma_knife;
+    // SHAMBLES (graft)
     pub use crate::genesis::graft as shambles;
-    // ROOM: ROOM (allocate)
-    pub use crate::genesis::scaffold as room;
+    // INGECTION SHOT (implant)
+    pub use crate::genesis::implant as ingection_shot;
+    // ROOM (mesh)
+    pub use crate::genesis::mesh as room;
 }

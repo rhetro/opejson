@@ -5,7 +5,7 @@
 > *Forged as a byproduct of the **Cognitive OS** architecture.*
 
 `opejson` is a powerful macro library that allows you to manipulate `serde_json::Value` with surgical precision.
-It overcomes Rust's strict type system barriers, offering dynamic-language-like flexibility while maintaining safety and performance.
+It brings Perl-like **Auto-vivification** to Rust's JSON handling, overcoming strict type system barriers. It offers dynamic-language-like flexibility while maintaining absolute safety and zero-overhead performance.
 
 > *"I'll sever those chaotic JSON paths... and stitch them back together."*
 
@@ -15,7 +15,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-opejson = "0.1.0"
+opejson = "0.2.0"
 serde_json = "1.0"
 ```
 
@@ -24,7 +24,7 @@ If you want to use the **Ope Ope no Mi** interface (Anime-inspired aliases), ena
 
 ```toml
 [dependencies]
-opejson = { version = "0.1.0", features = ["law_mode"] }
+opejson = { version = "0.2.0", features = ["law_mode"] }
 ```
 
 ---
@@ -33,38 +33,45 @@ opejson = { version = "0.1.0", features = ["law_mode"] }
 
 `opejson` provides three distinct modes of operation:
 
-1.  **Genesis Mode**: The Creator. Auto-vivification and Pre-allocation.
+1.  **Genesis Mode**: The Creator. Auto-vivification, merging, and pre-allocation.
 2.  **Strict Mode**: The Surgeon. Safe, validated operations on existing data.
 3.  **Law Mode**: The "Ope Ope no Mi" Interface. (Requires feature flag).
 
 `use serde_json::json;` is required for all examples.
 
 ### 1. Genesis Mode (Creation & Growth)
-Automatically creates objects, expands arrays, and allocates memory.
+Automatically creates objects, expands arrays, and structurally merges JSON trees.
 
 ```rust
-use opejson::genesis::{suture, graft, acquire, scaffold};
+use opejson::genesis::*;
 
 fn main() {
     let mut data = json!({});
 
-    // 1. Scaffold (Pre-allocation)
-    scaffold!(data, [10][20][5], serde_json::Value::Null);
+    // 1. Mesh (Pre-allocation)
+    // Deploys a multi-dimensional array instantly.
+    mesh!(data, [10][20][5], serde_json::Value::Null);
 
-    // 2. Suture (Force Write / Overwrite)
-    // "God Mode". Creates paths and FORCIBLY overwrites existing values.
+    // 2. Suture (Safe Auto-vivification)
+    // Creates paths safely. Stops and preserves if it hits an existing scalar.
     suture!(data, . "users" [0] . "name" = "Luffy");
     
-    // 3. Graft (Safe Write / Void Filler)
-    // Injects data ONLY if the target is Null or missing (Void).
-    // If a value exists, it does nothing (No-op).
-    graft!(data, . "users" [0] . "name" = "Zoro"); // Luffy stays.
-    graft!(data, . "users" [0] . "role" = "Captain"); // "role" is added.
+    // 3. Force Suture (Destructive Auto-vivification)
+    // Crushes existing scalars in the path to FORCIBLY build the new structure.
+    force_suture!(data, . "users" [0] . "name" . "first" = "Monkey"); 
+
+    // 4. Graft (Anatomical Merge / Shambles)
+    // Surgically merges Objects or concatenates Arrays at the target joint.
+    graft!(data, . "users" [0] = json!({"role": "Captain", "bounty": 3000000000u64}));
     
-    // 4. Acquire (Safe Read with Result)
-    // Returns Result<&Value, Error>.
-    let name_res = acquire!(data, . "users" [0] . "name").unwrap();
-    assert_eq!(name_res.as_str().unwrap(), "Luffy");
+    // 5. Implant (Void Filler / Default Injection)
+    // Injects data ONLY if the target is Null (Void). Preserves healthy data.
+    implant!(data, . "users" [0] . "status" = "Alive");
+    
+    // 6. Acquire (Heart Extraction)
+    // Safe read, returns Result<&Value, Error>.
+    let name_res = acquire!(data, . "users" [0] . "name" . "first").unwrap();
+    assert_eq!(name_res.as_str().unwrap(), "Monkey");
 }
 ```
 
@@ -72,7 +79,7 @@ fn main() {
 Strictly operates on *existing* paths. Returns `Option`. Safe for data validation and probing unknown JSON.
 
 ```rust
-use opejson::strict::{biopsy, incise, amputate};
+use opejson::strict::{biopsy, incise, excise};
 
 fn main() {
     let mut data = json!({ "id": 101, "meta": { "active": true } });
@@ -88,8 +95,9 @@ fn main() {
     let fail = incise!(data, . "unknown" = 999); 
     assert!(fail.is_none());
 
-    // 3. Amputate (Excise / Delete) -> Option<Value>
-    let removed = amputate!(data, . "meta");
+    // 3. Excise (Remove / Delete) -> Option<Value>
+    // cleanly cuts out the target node.
+    let removed = excise!(data, . "meta");
 }
 ```
 
@@ -115,15 +123,17 @@ This mode maps surgical operations to the abilities of the "Ope Ope no Mi".
 
 *(Requires `features = ["law_mode"]`)*
 
-| Capability | Function | Description | Core Concept |
-|:---|:---|:---|:---|
-| **SCAN** | `scan!` | Read value (Option) | `biopsy` |
-| **RADIO KNIFE** | `radio_knife!` | Write strictly | `incise` |
-| **AMPUTATE** | `amputate!` | Delete value | `amputate` |
-| **TAKT** | `takt!` | Force write (Overwrite) | `suture` |
-| **MES** | `mes!` | Extract result | `acquire` |
-| **SHAMBLES** | `shambles!` | Safe write (Void fill) | `graft` |
-| **ROOM** | `room!` | Pre-allocate N-dim memory | `scaffold` |
+| Roles                       | Names | Law Mode | Action Description                               |
+|-----------------------------|------------------|------------------|--------------------------------------------------|
+| Strict Read (Option)        | `biopsy!`        | **`scan!`** | Safely scans the internal structure without harm |
+| Strict Write (Mut)          | `incise!`        | **`radio_knife!`**| Precisely cuts an existing path to update a value|
+| Strict Delete               | `excise!`        | **`amputate!`** | Cleanly severs (deletes) a specific node         |
+| Genesis Write               | `suture!`        | **`takt!`** | Safely auto-vivifies structure to fill gaps      |
+| Genesis Force Write         | `force_suture!`  | **`gamma_knife!`**| Destroys existing scalars to force path creation |
+| Genesis Read (Result)       | `acquire!`       | **`mes!`** | Extracts the target heart (value) returning Result|
+| Genesis Fill (Void Filler)  | `implant!`       | **`injection_shot!`**| Injects a value ONLY if the target is Null   |
+| Genesis Merge               | `graft!`         | **`shambles!`** | Anatomically merges or concatenates structures   |
+| Deploy (Room Expansion)     | `mesh!`          | **`room!`** | Instantly deploys a multi-dimensional spatial grid|
 
 ```rust
 use opejson::law::*;
@@ -134,14 +144,12 @@ fn main() {
     // "ROOM." (Expand N-dimensional Space)
     room!(target, [3][3][3]);
 
-    // "TAKT." (Lift/Create object)
-    // Forcefully creates the object.
+    // "TAKT." (Auto-vivify structure)
     takt!(target, [1][1][1] = "Heart");
 
-    // "SHAMBLES." (Teleport/Inject Object)
-    // Injects only into void/null spaces (Safe).
-    let switch_obj = json!({"status": "Swapped"});
-    shambles!(target, [0][0][0] = switch_obj);
+    // "SHAMBLES." (Merge / Append)
+    let switch_obj = json!(["New Limb"]);
+    shambles!(target, [0] = switch_obj);
     
     // "MES." (Extract)
     let heart = mes!(target, [1][1][1]).unwrap();
@@ -174,7 +182,7 @@ fn main() {
 `opejson` is a **precision instrument**, not a safety-guarded machine. It follows a "Zero-Overhead" doctrine.
 
 ### 1. Performance First
-Macros expand at compile time. Adding complex, hidden validation inside expansion would increase branching and reduce throughput. `opejson` prioritizes **raw execution speed**.
+Macros expand at compile time. Adding complex, hidden validation inside expansion would increase branching and reduce throughput. `opejson` prioritizes **raw execution speed**, compiling down to purely physical memory operations (inline matching, `extend`, `append`).
 
 ### 2. Explicit Responsibility
 Error handling should be visible and under the caller’s control. Macros are a sealed environment; they should not silently reinterpret or absorb structural errors. **Responsibility belongs to the surgeon (the programmer).**
@@ -183,7 +191,7 @@ Error handling should be visible and under the caller’s control. Macros are a 
 Misusing indices (e.g., negative wrapping via `as usize`) or logical flaws in your loops are treated as **programmer mistakes**. Rust provides the tools to prevent these; `opejson` will not add runtime bloat to compensate for them.
 
 ### 4. Genesis vs. Strict
-- **Genesis Mode**: Permissive, creative, and dangerously fast.
+- **Genesis Mode**: Permissive, creative, and dangerously fast (Auto-vivification).
 - **Strict Mode**: Safe, non-destructive, and explicit.
 
 Choose your instrument according to the risk of the operation.
@@ -206,7 +214,7 @@ if let Some(users) = data.get_mut("users") {
 
 **With Opejson:**
 ```rust
-// Surgical Precision
+// Surgical Precision (Auto-vivification)
 suture!(data, . "users" [0] . "name" = "Chopper");
 ```
 
@@ -215,17 +223,17 @@ suture!(data, . "users" [0] . "name" = "Chopper");
 ## 📊 Testing & Performance
 
 ### Comprehensive Validation
-- **123 test cases** covering all macro patterns, dynamic keys, and structural edge cases.
+- **133 test cases** covering all macro patterns, dynamic keys, Auto-vivification logic, and structural edge cases.
 - Validated up to **100 levels of deep nesting** with zero runtime overhead.
 
 ### Performance Benchmark
-Measurements taken from `tests/performance_limit.rs` (Release mode):
+Measurements taken from `tests/performance_limit.rs` (Release mode on standard hardware):
 
-- **256-Level Deep Penetration**: `366.767µs`
-- **100,000 Massive Sutures**: `29.638ms`
-- **Overall Throughput**: **3,341,248 operations/sec**
+- **256-Level Deep Penetration**: `~366µs`
+- **100,000 Massive Sutures**: `~28ms`
+- **Overall Throughput**: **~3,560,000 operations/sec**
 
-> **Zero runtime overhead for path parsing.** > The macro expands directly into raw pointer access during compilation, making complex JSON manipulation as fast as native struct access.
+> **Zero runtime overhead for path parsing.** > The macro expands directly into raw pointer access and pattern matching during compilation, making complex JSON manipulation as fast as native struct access.
 
 ---
 
