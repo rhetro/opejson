@@ -5,7 +5,7 @@
 > *Forged as a byproduct of the **Cognitive OS** architecture.*
 
 `opejson` is a powerful macro library that allows you to manipulate `serde_json::Value` with surgical precision.
-It brings Perl-like **Auto-vivification** to Rust's JSON handling, overcoming strict type system barriers. It offers dynamic-language-like flexibility while maintaining absolute safety and zero-overhead performance.
+It brings Perl-like **Auto-vivification** to Rust's JSON handling, overcoming strict type system barriers. It offers dynamic-language-like flexibility while maintaining absolute safety and zero path-parsing overhead.
 
 > *"I'll sever those chaotic JSON paths... and stitch them back together."*
 
@@ -15,7 +15,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-opejson = "0.2.0"
+opejson = "0.2.1"
 serde_json = "1.0"
 ```
 
@@ -24,7 +24,7 @@ If you want to use the **Ope Ope no Mi** interface (Anime-inspired aliases), ena
 
 ```toml
 [dependencies]
-opejson = { version = "0.2.0", features = ["law_mode"] }
+opejson = { version = "0.2.1", features = ["law_mode"] }
 ```
 
 ---
@@ -172,17 +172,20 @@ fn main() {
 
 `opejson` is designed as a sharp scalpel, prioritizing performance and brevity over restrictive safety barriers.
 
-* **Indices are Cast Raw:** Array indices are cast using `as usize`. Passing negative values will wrap to huge numbers, potentially causing massive allocations (OOM) in Genesis Mode.
+* **Index Safety:** Array indices are cast raw using as usize in release mode for maximum performance. Passing negative values is caught via debug_assert! in development, but you must ensure logic correctness before production.
 * **Handle with Care:** You are the surgeon. Verify your dynamic inputs before operating.
 
 ---
 
 ## 🧠 Design Philosophy: Minimal Intervention
 
-`opejson` is a **precision instrument**, not a safety-guarded machine. It follows a "Zero-Overhead" doctrine.
+`opejson` is a **precision instrument**, not a safety-guarded machine. It strictly follows the "Zero-Cost Abstraction" doctrine.
 
-### 1. Performance First
-Macros expand at compile time. Adding complex, hidden validation inside expansion would increase branching and reduce throughput. `opejson` prioritizes **raw execution speed**, compiling down to purely physical memory operations (inline matching, `extend`, `append`).
+### 1. True Zero-Cost Abstraction (Zero Path-Parsing Overhead)
+Opejson does not reduce the inherent cost of JSON allocation or mutation — it removes only the abstraction overhead. Unlike traditional JSON libraries, there is absolutely **no runtime path parsing**.
+
+- **Physical Memory Operations:** Uses inline operations (`extend`, `append`, `match`) with no intermediate path representation, no dynamic dispatch, and no runtime tokenization.
+- **Compile-Time Resolution:** Path expansion is fully resolved at compile time, expanding to equivalent, highly optimized handwritten JSON access.
 
 ### 2. Explicit Responsibility
 Error handling should be visible and under the caller’s control. Macros are a sealed environment; they should not silently reinterpret or absorb structural errors. **Responsibility belongs to the surgeon (the programmer).**
@@ -193,6 +196,8 @@ Misusing indices (e.g., negative wrapping via `as usize`) or logical flaws in yo
 ### 4. Genesis vs. Strict
 - **Genesis Mode**: Permissive, creative, and dangerously fast (Auto-vivification).
 - **Strict Mode**: Safe, non-destructive, and explicit.
+
+Both modes expand to raw, handwritten-level JSON operations — the difference is intent and safety, not performance.
 
 Choose your instrument according to the risk of the operation.
 
@@ -224,7 +229,7 @@ suture!(data, . "users" [0] . "name" = "Chopper");
 
 ### Comprehensive Validation
 - **133 test cases** covering all macro patterns, dynamic keys, Auto-vivification logic, and structural edge cases.
-- Validated up to **100 levels of deep nesting** with zero runtime overhead.
+- Validated up to **100 levels of deep nesting** with zero path-parsing overhead.
 
 ### Performance Benchmark
 Measurements taken from `tests/performance_limit.rs` (Release mode on standard hardware):
@@ -233,7 +238,7 @@ Measurements taken from `tests/performance_limit.rs` (Release mode on standard h
 - **100,000 Massive Sutures**: `~28ms`
 - **Overall Throughput**: **~3,560,000 operations/sec**
 
-> **Zero runtime overhead for path parsing.** > The macro expands directly into raw pointer access and pattern matching during compilation, making complex JSON manipulation as fast as native struct access.
+> **Zero path-parsing overhead.** The macro expands directly into raw pointer access and pattern matching during compilation, making complex JSON manipulation as fast as native struct access.
 
 ---
 

@@ -77,7 +77,7 @@ macro_rules! _probe {
 #[doc(hidden)]
 macro_rules! __impl_inject {
     ($val:expr, = $value:expr) => {{
-        *$val = $crate::serde_json::json!($value);
+        *$val = $crate::serde_json::Value::from($value);
         Some(())
     }};
 
@@ -307,6 +307,10 @@ macro_rules! __impl_cultivate {
 
         // 2. Drill & Recurse
         if let $crate::serde_json::Value::Array(arr) = $val {
+            #[allow(unused_comparisons)]
+            {
+                debug_assert!($idx >= 0, "Opejson: Array index must be zero or positive");
+            }
             let idx = $idx as usize;
             if idx >= arr.len() {
                 arr.resize(idx + 1, $crate::serde_json::Value::Null);
@@ -369,6 +373,10 @@ macro_rules! __impl_force_cultivate {
 
         // 2. Drill & Recurse
         if let $crate::serde_json::Value::Array(arr) = $val {
+            #[allow(unused_comparisons)]
+            {
+                debug_assert!($idx >= 0, "Opejson: Array index must be zero or positive");
+            }
             let idx = $idx as usize;
             if idx >= arr.len() {
                 arr.resize(idx + 1, $crate::serde_json::Value::Null);
@@ -411,7 +419,7 @@ macro_rules! __impl_implant {
     // Phase 1: Terminal Assignment (Void Only)
     ($val:expr, = $value:expr) => {
         if $val.is_null() {
-            *$val = $crate::serde_json::json!($value);
+            *$val = $crate::serde_json::Value::from($value);
         }
     };
 
@@ -437,6 +445,10 @@ macro_rules! __impl_implant {
         }
         // Drill only if structure matches
         if let Some(arr) = $val.as_array_mut() {
+            #[allow(unused_comparisons)]
+            {
+                debug_assert!($idx >= 0, "Opejson: Array index must be zero or positive");
+            }
             let idx = $idx as usize;
             if idx >= arr.len() {
                 arr.resize(idx + 1, $crate::serde_json::Value::Null);
@@ -464,7 +476,7 @@ macro_rules! _implant {
 macro_rules! __impl_graft {
     // Phase 1: Terminal Assignment (Anatomical Graft at the cut line)
     ($val:expr, = $value:expr) => {{
-        match (&mut *$val, $crate::serde_json::json!($value)) {
+        match (&mut *$val, $crate::serde_json::Value::from($value)) {
             // 1. Object + Object
             ($crate::serde_json::Value::Object(h_map), $crate::serde_json::Value::Object(s_map)) => {
                 h_map.extend(s_map);
@@ -498,6 +510,10 @@ macro_rules! __impl_graft {
             *$val = $crate::__impl_forge!([ ]);
         }
         if let $crate::serde_json::Value::Array(arr) = $val {
+            #[allow(unused_comparisons)]
+            {
+                debug_assert!($idx >= 0, "Opejson: Array index must be zero or positive");
+            }
             let idx = $idx as usize;
             if idx >= arr.len() {
                 arr.resize(idx + 1, $crate::serde_json::Value::Null);
@@ -527,7 +543,7 @@ macro_rules! __impl_construct_room {
     // 1D Array (Initialized with specific value)
     ([ $len:expr ] , $init:expr) => {{
         let len = $len as usize;
-        let init_val = $crate::serde_json::json!($init);
+        let init_val = $crate::serde_json::Value::from($init);
         let mut v = std::vec::Vec::with_capacity(len);
         for _ in 0..len {
             v.push(init_val.clone());
