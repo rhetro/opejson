@@ -42,7 +42,7 @@ opejson = { version = "0.2.2", features = ["law_mode"] }
 ### 1. Genesis Mode (Creation & Growth)
 Automatically creates objects, expands arrays, and structurally merges JSON trees.
 
-```rust
+```rust,ignore
 use opejson::genesis::*;
 
 fn main() {
@@ -78,7 +78,7 @@ fn main() {
 ### 2. Strict Mode (Precision Surgery)
 Strictly operates on *existing* paths. Returns `Option`. Safe for data validation and probing unknown JSON.
 
-```rust
+```rust,ignore
 use opejson::strict::{biopsy, incise, excise};
 
 fn main() {
@@ -104,7 +104,7 @@ fn main() {
 #### 🎯 Dynamic Keys & Indices
 You can use variables (expressions) for keys and indices by wrapping them in parentheses `( )`.
 
-```rust
+```rust,ignore
 let key = "stats";
 let idx = 5;
 
@@ -135,7 +135,7 @@ This mode maps surgical operations to the abilities of the "Ope Ope no Mi".
 | Genesis Merge               | `graft!`         | **`shambles!`** | Anatomically merges or concatenates structures   |
 | Deploy (Room Expansion)     | `mesh!`          | **`room!`** | Instantly deploys a multi-dimensional spatial grid|
 
-```rust
+```rust,ignore
 use opejson::law::*;
 
 fn main() {
@@ -206,7 +206,7 @@ Choose your instrument according to the risk of the operation.
 ## ⚡ Comparison: The Pain vs. Opejson
 
 **Without Opejson (Standard Serde):**
-```rust
+```rust,ignore
 // The "Option Hell"
 if let Some(users) = data.get_mut("users") {
     if let Some(user) = users.get_mut(0) {
@@ -218,7 +218,7 @@ if let Some(users) = data.get_mut("users") {
 ```
 
 **With Opejson:**
-```rust
+```rust,ignore
 // Surgical Precision (Auto-vivification)
 suture!(data, . "users" [0] . "name" = "Chopper");
 ```
