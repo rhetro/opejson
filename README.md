@@ -15,7 +15,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-opejson = "0.2.1"
+opejson = "0.2.2"
 serde_json = "1.0"
 ```
 
@@ -24,7 +24,7 @@ If you want to use the **Ope Ope no Mi** interface (Anime-inspired aliases), ena
 
 ```toml
 [dependencies]
-opejson = { version = "0.2.1", features = ["law_mode"] }
+opejson = { version = "0.2.2", features = ["law_mode"] }
 ```
 
 ---
@@ -241,7 +241,11 @@ Measurements taken from `tests/performance_limit.rs` (Release mode on standard h
 > **Zero path-parsing overhead.** The macro expands directly into raw pointer access and pattern matching during compilation, making complex JSON manipulation as fast as native struct access.
 
 ---
-
 ## License
 
-MIT
+This project is licensed under either of
+
+* Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0))
+* MIT license ([LICENSE-MIT](LICENSE-MIT) or [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT))
+
+at your option.

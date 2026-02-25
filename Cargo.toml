@@ -1,10 +1,10 @@
 [package]
 name = "opejson"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 authors = ["Rhetro <rhetro@rhetroxc.com>"]
 description = "Surgical JSON manipulation macros for Rust. (Strict, Genesis, and Law modes)"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/rhetro/opejson"
 readme = "README.md"
 keywords = ["json", "macro", "dynamic", "serde_json", "auto-vivification"]

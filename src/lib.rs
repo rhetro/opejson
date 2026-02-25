@@ -1,5 +1,7 @@
 // src/lib.rs
 
+#![doc = include_str!("../README.md")]
+
 // | Roles                        | Names        | Law Mode       |
 // |------------------------------|--------------|----------------|
 // | Strict Read (Option)         | biopsy       | scan           |
