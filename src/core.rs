@@ -424,7 +424,7 @@ macro_rules! __impl_implant {
     };
 
     // Phase 2: Object Traversal
-    ($val:expr, . $key:tt $($rest:tt)*) => {
+    ($val:expr, . $key:tt $($rest:tt)*) => {{
         // Enforce Object if Null (using Forge)
         if $val.is_null() {
             *$val = $crate::__impl_forge!({ });
@@ -435,10 +435,10 @@ macro_rules! __impl_implant {
                           .or_insert($crate::serde_json::Value::Null);
             $crate::__impl_implant!(next, $($rest)*);
         }
-    };
+    }};
 
     // Phase 3: Array Traversal
-    ($val:expr, [ $idx:expr ] $($rest:tt)*) => {
+    ($val:expr, [ $idx:expr ] $($rest:tt)*) => {{
         // Enforce Array if Null (using Forge)
         if $val.is_null() {
             *$val = $crate::__impl_forge!([ ]);
@@ -455,7 +455,7 @@ macro_rules! __impl_implant {
             }
             $crate::__impl_implant!(&mut arr[idx], $($rest)*);
         }
-    };
+    }};
 }
 
 // --- Entry Point ---
