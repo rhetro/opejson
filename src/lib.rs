@@ -44,19 +44,28 @@ impl std::error::Error for Error {}
 /// Mode A: Strict
 /// The Surgeon: Operates precisely on existing anatomy.
 pub mod strict {
+    #[doc(inline)]
     pub use crate::_excise as excise;
+    #[doc(inline)]
     pub use crate::_inject as incise;
+    #[doc(inline)]
     pub use crate::_probe as biopsy;
 }
 
 /// Mode B: Genesis
 /// The Creator: Cultivates and grows new paths.
 pub mod genesis {
+    #[doc(inline)]
     pub use crate::_cultivate as suture;
+    #[doc(inline)]
     pub use crate::_deploy as mesh;
+    #[doc(inline)]
     pub use crate::_extract as acquire;
+    #[doc(inline)]
     pub use crate::_force_cultivate as force_suture;
+    #[doc(inline)]
     pub use crate::_graft as graft;
+    #[doc(inline)]
     pub use crate::_implant as implant;
 }
 
@@ -66,21 +75,30 @@ pub mod law {
     //! The "Ope Ope no Mi" Interface.
 
     // SCAN (biopsy)
+    #[doc(inline)]
     pub use crate::strict::biopsy as scan;
     // RADIO KNIFE (incise)
+    #[doc(inline)]
     pub use crate::strict::incise as radio_knife;
     // AMPUTATE (excise)
+    #[doc(inline)]
     pub use crate::strict::excise as amputate;
     // MES (acquire)
+    #[doc(inline)]
     pub use crate::genesis::acquire as mes;
     // TAKT (suture)
+    #[doc(inline)]
     pub use crate::genesis::suture as takt;
     // GAMMA KNIFE (force suture)
+    #[doc(inline)]
     pub use crate::genesis::force_suture as gamma_knife;
     // SHAMBLES (graft)
+    #[doc(inline)]
     pub use crate::genesis::graft as shambles;
     // INGECTION SHOT (implant)
+    #[doc(inline)]
     pub use crate::genesis::implant as ingection_shot;
     // ROOM (mesh)
+    #[doc(inline)]
     pub use crate::genesis::mesh as room;
 }

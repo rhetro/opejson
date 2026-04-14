@@ -15,7 +15,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-opejson = "0.2.3"
+opejson = "0.2.4"
 serde_json = "1.0"
 ```
 
@@ -24,7 +24,7 @@ If you want to use the **Ope Ope no Mi** interface (Anime-inspired aliases), ena
 
 ```toml
 [dependencies]
-opejson = { version = "0.2.3", features = ["law_mode"] }
+opejson = { version = "0.2.4", features = ["law_mode"] }
 ```
 
 ---
